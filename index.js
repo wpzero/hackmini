@@ -66,16 +66,25 @@ app.post("/api/message", async (req, res) => {
             code: 0,
             data: "Get accessToken failed",
         });
-        return
+        return;
     }
+    // https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code
+    /* const jsCode = "053sYs000ujKON11l14009c71k4sYs0s";
+     * const codeResponse = await axios.get(`https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&secret=${secret}&js_code=${jsCode}&grant_type=authorization_code`);
+     * const openId = codeResponse.data.openid; */
+    const openId = "ochDw5RpO8L-7yHvaEDIXptWBzWY";
     const messageResponse = await axios.post(`https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=${accessToken}`, {
-        "touser": "053CM1ll2U3j994XTNol2tBUKc3CM1lf",
+        "touser": openId,
         "template_id": "o5AbXgWrC0rDgmTwXPrjBkp5-T2h8BytjBbH4-IunzE",
         "data": {
-            "name1": "2022",
-            "thing4": "hackmini",
+            "name1": {
+                "value": "hackmini",
+            },
+            "thing4": {
+                "value": "hackmini",
+            },
         },
-    })
+    });
     res.send({
         code: 0,
         data: messageResponse,
