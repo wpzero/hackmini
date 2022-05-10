@@ -33,9 +33,16 @@ app.post("/api/count", async (req, res) => {
   });
 });
 
+app.get("/api/schedule_data", async (req, res) => {
+    res.send({
+        code: 0,
+        data: "hello world"
+    })
+})
+
 // 获取计数
 app.get("/api/count", async (req, res) => {
-  const result = await Counter.count();
+    const result = await Counter.count();
   res.send({
     code: 0,
     data: result,
