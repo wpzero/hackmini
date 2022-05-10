@@ -2,7 +2,10 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+const axios = require('axios').default;
 const { init: initDB, Counter } = require("./db");
+const appid = "wx158c5308346ab904";
+const secret = "f76c37f09bd115b849f4838af1195b1c";
 
 const logger = morgan("tiny");
 
@@ -53,6 +56,30 @@ app.get("/api/test", async (req, res) => {
         code: 0,
         data: `${JSON.stringify(req.body)}`
     })
+})
+
+app.post("/api/message", async (req, res) => {
+    const response = await axios.get(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${appid}&secret=${secret}`);
+    const accessToken = response.data.access_token;
+    if(!accessToken) {
+        res.send({
+            code: 0,
+            data: "Get accessToken failed",
+        });
+        return
+    }
+    const messageResponse = await axios.post(`https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=${accessToken}`, {
+        "touser": "053CM1ll2U3j994XTNol2tBUKc3CM1lf",
+        "template_id": "o5AbXgWrC0rDgmTwXPrjBkp5-T2h8BytjBbH4-IunzE",
+        "data": {
+            "name1": "2022",
+            "thing4": "hackmini",
+        },
+    })
+    res.send({
+        code: 0,
+        data: messageResponse,
+    });
 })
 
 app.get("/api/schedule", async (req, res) => {
