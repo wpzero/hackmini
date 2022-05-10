@@ -10,13 +10,22 @@ const secret = "f76c37f09bd115b849f4838af1195b1c";
 const logger = morgan("tiny");
 
 const app = express();
-const scheduleData = require("./hackmini.json")
+const scheduleData = require("./hackmini.json");
 const formatedScheduleData = scheduleData.map(row => {
     return {
         ...row,
         etd: row["etd"] ? new Date(row["etd"]) : null
     }
-})
+});
+const scheduleV2Data = require("./hackmini_v2.json");
+const formatedScheduleV2Data = scheduleV2Data.map(row => {
+    return {
+        ...row,
+        proforma_etd: row["proforma_etd"] ? new Date(row["proforma_etd"]) : null,
+        live_etd: row["live_etd"] ? new Date(row["live_etd"]) : null,
+        eta: row["eta"] ? new Date(row["eta"]) : null,
+    }
+});
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -75,13 +84,13 @@ app.post("/api/message", async (req, res) => {
     const openId = "ochDw5RpO8L-7yHvaEDIXptWBzWY";
     const messageResponse = await axios.post(`https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=${accessToken}`, {
         "touser": openId,
-        "template_id": "o5AbXgWrC0rDgmTwXPrjBkp5-T2h8BytjBbH4-IunzE",
+        "template_id": "-t9BsBkcs25h_j0jhqjtk7jNbjcjwWj5QhdHXjWX3Jw",
         "data": {
-            "name1": {
-                "value": "hackmini",
+            "thing1": {
+                "value": "Ruby",
             },
-            "thing4": {
-                "value": "hackmini",
+            "thing2": {
+                "value": "空班船名变更，船期延迟",
             },
         },
     });
@@ -106,6 +115,27 @@ app.get("/api/schedule", async (req, res) => {
         code: 0,
         data: result
     })
+})
+
+app.get("/api/schedule_v2", async (req, res) => {
+    const { pol, pod, etd_start, etd_end } = req.query;
+    if(!pol || !pod || !etd_start || !etd_end) {
+        res.send({
+            code: 1,
+            data: `One of pol, pod, etd_start, etd_end is missing. ${pol} ${pod} ${etd_start} ${etd_end}`
+        })
+    }
+    const etd_start_date = new Date(etd_start);
+    const etd_end_date = new Date(etd_end);
+    const result = formatedScheduleV2Data.filter((row) =>
+        (row.pol || "").toLowerCase() == pol.toLowerCase() &&
+                                                        (row.pod || "").toLowerCase() == pod.toLowerCase() &&
+                                                        row.proforma_etd <= etd_end_date &&
+                                                        row.proforma_etd >= etd_start_date);
+    res.send({
+        code: 0,
+        data: result
+    });
 })
 
 // 获取计数
