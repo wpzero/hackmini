@@ -128,8 +128,8 @@ app.get("/api/schedule_v2", async (req, res) => {
     const etd_start_date = new Date(etd_start);
     const etd_end_date = new Date(etd_end);
     const result = formatedScheduleV2Data.filter((row) =>
-        (row.pol || "").toLowerCase() == pol.toLowerCase() &&
-                                                        (row.pod || "").toLowerCase() == pod.toLowerCase() &&
+        (row.pol || "").toLowerCase() == decodeURIComponent(pol).toLowerCase() &&
+                                                        (row.pod || "").toLowerCase() == decodeURIComponent(pod).toLowerCase() &&
                                                         row.proforma_etd <= etd_end_date &&
                                                         row.proforma_etd >= etd_start_date);
     res.send({
